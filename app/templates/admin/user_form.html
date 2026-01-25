@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Carflix Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <a href="{{ url_for('admin_users') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver a usuarios
+                </a>
+                <h1><i class="fas fa-user-plus"></i> {{ title }}</h1>
+            </div>
+        </div>
+
+        <div class="form-container-admin">
+            <form method="POST" class="admin-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ form.username.label }}
+                    {{ form.username(class="form-control") }}
+                    {% if form.username.errors %}
+                        <div class="form-errors">
+                            {% for error in form.username.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control") }}
+                    {% if form.email.errors %}
+                        <div class="form-errors">
+                            {% for error in form.email.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.password.label }}
+                    {{ form.password(class="form-control", placeholder="Dejar en blanco para mantener la actual" if user else "Mínimo 6 caracteres") }}
+                    {% if form.password.errors %}
+                        <div class="form-errors">
+                            {% for error in form.password.errors %}
+                                <span class="error">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if not user %}
+                    <small class="form-text">Si dejas la contraseña vacía, se asignará: password123</small>
+                    {% else %}
+                    <small class="form-text">Solo completa este campo si quieres cambiar la contraseña</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group-checkbox">
+                    {{ form.is_admin(class="form-checkbox") }}
+                    {{ form.is_admin.label }}
+                </div>
+
+                <div class="form-actions">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

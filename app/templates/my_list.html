@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Lista - Carflix{% endblock %}
+
+{% block content %}
+<div class="my-list-page">
+    <div class="page-container">
+        <h1>Mi Lista</h1>
+
+        {% if favorite_movies|length > 0 or favorite_series|length > 0 %}
+            <!-- Películas Favoritas -->
+            {% if favorite_movies|length > 0 %}
+            <section class="content-section">
+                <h2>Películas ({{ favorite_movies|length }})</h2>
+                <div class="content-row">
+                    {% for movie in favorite_movies %}
+                    <div class="content-card">
+                        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+                            <img src="{{ url_for('static', filename=movie.poster_path) if movie.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                                 alt="{{ movie.title }}" class="content-poster">
+                            <div class="content-overlay">
+                                <h3>{{ movie.title }}</h3>
+                                <div class="content-info">
+                                    <span class="year">{{ movie.release_year or 'N/A' }}</span>
+                                    {% if movie.duration %}
+                                    <span class="duration">{{ movie.duration }} min</span>
+                                    {% endif %}
+                                </div>
+                                <div class="content-actions">
+                                    <button class="action-btn" onclick="window.location.href='{{ url_for('movie_detail', movie_id=movie.id) }}'">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button class="action-btn" onclick="event.preventDefault(); window.location.href='{{ url_for('toggle_favorite_movie', movie_id=movie.id) }}'">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Series Favoritas -->
+            {% if favorite_series|length > 0 %}
+            <section class="content-section">
+                <h2>Series ({{ favorite_series|length }})</h2>
+                <div class="content-row">
+                    {% for show in favorite_series %}
+                    <div class="content-card">
+                        <a href="{{ url_for('series_detail', series_id=show.id) }}">
+                            <img src="{{ url_for('static', filename=show.poster_path) if show.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                                 alt="{{ show.title }}" class="content-poster">
+                            <div class="content-overlay">
+                                <h3>{{ show.title }}</h3>
+                                <div class="content-info">
+                                    <span class="year">{{ show.release_year or 'N/A' }}</span>
+                                    <span class="episodes">{{ show.episodes.count() }} episodios</span>
+                                </div>
+                                <div class="content-actions">
+                                    <button class="action-btn" onclick="window.location.href='{{ url_for('series_detail', series_id=show.id) }}'">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button class="action-btn" onclick="event.preventDefault(); window.location.href='{{ url_for('toggle_favorite_series', series_id=show.id) }}'">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        {% else %}
+            <div class="empty-list">
+                <i class="fas fa-heart"></i>
+                <h2>Tu lista está vacía</h2>
+                <p>Añade películas y series a tu lista para verlas más tarde</p>
+                <a href="{{ url_for('home') }}" class="btn btn-primary">Explorar catálogo</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

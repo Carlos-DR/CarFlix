@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Carflix Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <a href="{{ url_for('admin_series') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver a series
+                </a>
+                <h1><i class="fas fa-tv"></i> {{ title }}</h1>
+            </div>
+        </div>
+
+        <div class="form-container-admin">
+            <form method="POST" enctype="multipart/form-data" class="admin-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.title.label }}
+                        {{ form.title(class="form-control") }}
+                        {% if form.title.errors %}
+                            <div class="form-errors">
+                                {% for error in form.title.errors %}
+                                    <span class="error">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ form.description.label }}
+                    {{ form.description(class="form-control", rows="4") }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.release_year.label }}
+                        {{ form.release_year(class="form-control") }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ form.categories.label }}
+                    {{ form.categories(class="form-control-select", multiple=true, size=5) }}
+                    <small class="form-text">Mantén Ctrl para seleccionar múltiples categorías</small>
+                </div>
+
+                <div class="form-divider">
+                    <h3><i class="fas fa-upload"></i> Imágenes</h3>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.poster.label }}
+                        {{ form.poster(class="form-control-file") }}
+                        <small class="form-text">Recomendado: 300x450px</small>
+                        {% if series and series.poster_path %}
+                            <img src="{{ url_for('static', filename=series.poster_path) }}" class="preview-image" alt="Poster actual">
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.background.label }}
+                        {{ form.background(class="form-control-file") }}
+                        <small class="form-text">Recomendado: 1920x1080px</small>
+                        {% if series and series.background_path %}
+                            <img src="{{ url_for('static', filename=series.background_path) }}" class="preview-image" alt="Fondo actual">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('admin_series') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

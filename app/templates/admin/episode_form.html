@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - {{ series.title }} - Carflix Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <a href="{{ url_for('admin_episodes', series_id=series.id) }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver a episodios
+                </a>
+                <h1><i class="fas fa-list"></i> {{ title }}</h1>
+                <p class="subtitle">Serie: {{ series.title }}</p>
+            </div>
+        </div>
+
+        <div class="form-container-admin">
+            <form method="POST" enctype="multipart/form-data" class="admin-form">
+                {{ form.hidden_tag() }}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.season_number.label }}
+                        {{ form.season_number(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.episode_number.label }}
+                        {{ form.episode_number(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.duration.label }}
+                        {{ form.duration(class="form-control") }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ form.title.label }}
+                    {{ form.title(class="form-control") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.description.label }}
+                    {{ form.description(class="form-control", rows="3") }}
+                </div>
+
+                <div class="form-divider">
+                    <h3><i class="fas fa-upload"></i> Archivos</h3>
+                </div>
+
+                <div class="form-group">
+                    {{ form.video.label }}
+                    {{ form.video(class="form-control-file") }}
+                    <small class="form-text">Formatos permitidos: MP4, AVI, MKV, MOV</small>
+                </div>
+
+                <div class="form-group">
+                    {{ form.thumbnail.label }}
+                    {{ form.thumbnail(class="form-control-file") }}
+                    <small class="form-text">Miniatura del episodio</small>
+                </div>
+
+                <div class="form-actions">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('admin_episodes', series_id=series.id) }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

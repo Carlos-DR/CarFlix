@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Episodios de {{ series.title }} - Carflix Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <a href="{{ url_for('admin_series') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver a series
+                </a>
+                <h1><i class="fas fa-list"></i> Episodios de {{ series.title }}</h1>
+            </div>
+            <a href="{{ url_for('admin_add_episode', series_id=series.id) }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Añadir Episodio
+            </a>
+        </div>
+
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Temporada</th>
+                        <th>Episodio</th>
+                        <th>Título</th>
+                        <th>Duración</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for episode in episodes %}
+                    <tr>
+                        <td><strong>{{ episode.season_number }}</strong></td>
+                        <td>{{ episode.episode_number }}</td>
+                        <td>
+                            <div class="episode-title-cell">
+                                <strong>{{ episode.title }}</strong>
+                                {% if episode.description %}
+                                <small>{{ episode.description[:80] }}...</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if episode.duration %}
+                            {{ episode.duration }} min
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('admin_delete_episode', episode_id=episode.id) }}"
+                                   class="btn-icon btn-danger"
+                                   title="Eliminar episodio"
+                                   onclick="return confirm('¿Eliminar este episodio?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if episodes|length == 0 %}
+            <div class="empty-state">
+                <i class="fas fa-list"></i>
+                <h3>No hay episodios</h3>
+                <p>Añade el primer episodio de {{ series.title }}</p>
+                <a href="{{ url_for('admin_add_episode', series_id=series.id) }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Añadir Episodio
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

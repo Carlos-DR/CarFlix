@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar Categorías - Carflix Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <a href="{{ url_for('admin_dashboard') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver al panel
+                </a>
+                <h1><i class="fas fa-tags"></i> Gestión de Categorías</h1>
+            </div>
+        </div>
+
+        <div class="categories-layout">
+            <!-- Formulario para añadir categoría -->
+            <div class="category-form-card">
+                <h2><i class="fas fa-plus-circle"></i> Añadir Nueva Categoría</h2>
+                <form method="POST" class="admin-form">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ form.name.label }}
+                        {{ form.name(class="form-control", placeholder="Ej: Acción, Comedia, Drama...") }}
+                        {% if form.name.errors %}
+                            <div class="form-errors">
+                                {% for error in form.name.errors %}
+                                    <span class="error">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-actions">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de categorías existentes -->
+            <div class="categories-list-card">
+                <h2><i class="fas fa-list"></i> Categorías Existentes ({{ categories|length }})</h2>
+
+                {% if categories|length > 0 %}
+                <div class="categories-grid">
+                    {% for category in categories %}
+                    <div class="category-item">
+                        <div class="category-info">
+                            <i class="fas fa-tag"></i>
+                            <span class="category-name">{{ category.name }}</span>
+                            <span class="category-count">
+                                {{ category.movies.count() + category.series.count() }} contenidos
+                            </span>
+                        </div>
+                        <a href="{{ url_for('admin_delete_category', category_id=category.id) }}"
+                           class="btn-icon btn-danger btn-sm"
+                           onclick="return confirm('¿Eliminar la categoría {{ category.name }}?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state-small">
+                    <i class="fas fa-tags"></i>
+                    <p>No hay categorías creadas</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

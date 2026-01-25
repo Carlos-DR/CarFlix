@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}{{ movie.title }} - Carflix{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <!-- Hero Section con Background -->
+    <section class="detail-hero" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.9) 100%),
+                                        url('{{ url_for('static', filename=movie.background_path) if movie.background_path else url_for('static', filename='images/default-bg.jpg') }}');">
+        <div class="detail-hero-content">
+            <a href="{{ url_for('home') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </section>
+
+    <!-- Información de la Película -->
+    <section class="detail-content">
+        <div class="detail-container">
+            <div class="detail-main">
+                <div class="detail-poster">
+                    <img src="{{ url_for('static', filename=movie.poster_path) if movie.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                         alt="{{ movie.title }}">
+                </div>
+
+                <div class="detail-info">
+                    <h1 class="detail-title">{{ movie.title }}</h1>
+
+                    <div class="detail-meta">
+                        {% if movie.release_year %}
+                        <span class="meta-item"><i class="fas fa-calendar"></i> {{ movie.release_year }}</span>
+                        {% endif %}
+                        {% if movie.duration %}
+                        <span class="meta-item"><i class="fas fa-clock"></i> {{ movie.duration }} min</span>
+                        {% endif %}
+                        {% if movie.categories %}
+                        <span class="meta-item">
+                            <i class="fas fa-tag"></i>
+                            {% for category in movie.categories %}
+                                {{ category.name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="detail-actions">
+                        <button onclick="playVideo()" class="btn btn-primary btn-large">
+                            <i class="fas fa-play"></i> Reproducir
+                        </button>
+
+                        <a href="{{ url_for('toggle_favorite_movie', movie_id=movie.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-{% if is_favorite %}check{% else %}plus{% endif %}"></i>
+                            {% if is_favorite %}En mi lista{% else %}Mi lista{% endif %}
+                        </a>
+
+                        <a href="{{ url_for('toggle_watched_movie', movie_id=movie.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-{% if is_watched %}eye-slash{% else %}eye{% endif %}"></i>
+                            {% if is_watched %}Marcar como no vista{% else %}Marcar como vista{% endif %}
+                        </a>
+                    </div>
+
+                    {% if movie.description %}
+                    <div class="detail-description">
+                        <h3>Sinopsis</h3>
+                        <p>{{ movie.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reproductor de Video (oculto por defecto) -->
+    <div id="videoPlayer" class="video-player-modal" style="display: none;">
+        <div class="video-player-container">
+            <button onclick="closeVideo()" class="close-player">
+                <i class="fas fa-times"></i>
+            </button>
+            <video id="videoElement" controls autoplay>
+                <source src="{{ url_for('serve_video', filename=movie.video_path) }}" type="video/mp4">
+                Tu navegador no soporta la reproducción de video.
+            </video>
+        </div>
+    </div>
+</div>
+
+<script>
+function playVideo() {
+    document.getElementById('videoPlayer').style.display = 'flex';
+    document.getElementById('videoElement').play();
+}
+
+function closeVideo() {
+    const video = document.getElementById('videoElement');
+    video.pause();
+    video.currentTime = 0;
+    document.getElementById('videoPlayer').style.display = 'none';
+}
+
+// Cerrar con tecla ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeVideo();
+    }
+});
+</script>
+{% endblock %}

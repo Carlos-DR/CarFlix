@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Carflix{% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <!-- Hero Banner -->
+    {% if movies|length > 0 %}
+    {% set featured = movies[0] %}
+    <section class="hero-banner" style="background-image: linear-gradient(to right, rgba(0,0,0,0.8) 0%, transparent 100%),
+                                       url('{{ url_for('static', filename=featured.background_path) if featured.background_path else url_for('static', filename='images/default-bg.jpg') }}');">
+        <div class="hero-banner-content">
+            <h1 class="banner-title">{{ featured.title }}</h1>
+            <p class="banner-description">{{ featured.description[:200] }}...</p>
+            <div class="banner-buttons">
+                <a href="{{ url_for('movie_detail', movie_id=featured.id) }}" class="btn btn-white">
+                    <i class="fas fa-play"></i> Reproducir
+                </a>
+                <a href="{{ url_for('movie_detail', movie_id=featured.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-info-circle"></i> Más información
+                </a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Sección de Películas -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2>Películas</h2>
+        </div>
+        <div class="content-row">
+            {% if movies|length > 0 %}
+                {% for movie in movies %}
+                <div class="content-card">
+                    <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+                        <img src="{{ url_for('static', filename=movie.poster_path) if movie.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                             alt="{{ movie.title }}" class="content-poster">
+                        <div class="content-overlay">
+                            <h3>{{ movie.title }}</h3>
+                            <div class="content-info">
+                                <span class="year">{{ movie.release_year or 'N/A' }}</span>
+                                {% if movie.duration %}
+                                <span class="duration">{{ movie.duration }} min</span>
+                                {% endif %}
+                            </div>
+                            <div class="content-actions">
+                                <button class="action-btn" onclick="window.location.href='{{ url_for('movie_detail', movie_id=movie.id) }}'">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="action-btn" onclick="event.preventDefault(); window.location.href='{{ url_for('toggle_favorite_movie', movie_id=movie.id) }}'">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-content">No hay películas disponibles aún.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Sección de Series -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2>Series</h2>
+        </div>
+        <div class="content-row">
+            {% if series|length > 0 %}
+                {% for show in series %}
+                <div class="content-card">
+                    <a href="{{ url_for('series_detail', series_id=show.id) }}">
+                        <img src="{{ url_for('static', filename=show.poster_path) if show.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                             alt="{{ show.title }}" class="content-poster">
+                        <div class="content-overlay">
+                            <h3>{{ show.title }}</h3>
+                            <div class="content-info">
+                                <span class="year">{{ show.release_year or 'N/A' }}</span>
+                                <span class="episodes">{{ show.episodes.count() }} episodios</span>
+                            </div>
+                            <div class="content-actions">
+                                <button class="action-btn" onclick="window.location.href='{{ url_for('series_detail', series_id=show.id) }}'">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="action-btn" onclick="event.preventDefault(); window.location.href='{{ url_for('toggle_favorite_series', series_id=show.id) }}'">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-content">No hay series disponibles aún.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Sección por Categorías -->
+    {% for category in categories %}
+        {% set cat_movies = category.movies.all() %}
+        {% set cat_series = category.series.all() %}
+        {% if cat_movies|length > 0 or cat_series|length > 0 %}
+        <section class="content-section">
+            <div class="section-header">
+                <h2>{{ category.name }}</h2>
+            </div>
+            <div class="content-row">
+                {% for movie in cat_movies[:6] %}
+                <div class="content-card">
+                    <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+                        <img src="{{ url_for('static', filename=movie.poster_path) if movie.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                             alt="{{ movie.title }}" class="content-poster">
+                        <div class="content-overlay">
+                            <h3>{{ movie.title }}</h3>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+                {% for show in cat_series[:6] %}
+                <div class="content-card">
+                    <a href="{{ url_for('series_detail', series_id=show.id) }}">
+                        <img src="{{ url_for('static', filename=show.poster_path) if show.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                             alt="{{ show.title }}" class="content-poster">
+                        <div class="content-overlay">
+                            <h3>{{ show.title }}</h3>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

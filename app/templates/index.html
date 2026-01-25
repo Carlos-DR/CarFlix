@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Carflix - Tu plataforma de streaming{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Películas, series y mucho más. Sin límites.</h1>
+            <p class="hero-subtitle">Disfruta donde quieras. Cancela cuando quieras.</p>
+            <div class="hero-cta">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">
+                    Comenzar ahora <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <p class="hero-login">
+                ¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">¿Por qué elegir Carflix?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tv"></i>
+                    </div>
+                    <h3>Disfruta en tu TV</h3>
+                    <p>Ve en smart TV, PlayStation, Xbox, Chromecast, Apple TV, reproductores de Blu-ray y más.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>Descarga tus series</h3>
+                    <p>Guarda tu contenido favorito y tenlo siempre disponible para verlo cuando quieras.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Disfruta donde quieras</h3>
+                    <p>Películas y series ilimitadas en tu teléfono, tablet, computadora y TV.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Crea tu lista</h3>
+                    <p>Guarda tus películas y series favoritas para verlas más tarde.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>¿Listo para comenzar?</h2>
+            <p>Crea tu cuenta y empieza a disfrutar del mejor contenido</p>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">
+                Registrarse gratis
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}

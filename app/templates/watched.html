@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Contenido Visto - Carflix{% endblock %}
+
+{% block content %}
+<div class="my-list-page">
+    <div class="page-container">
+        <h1><i class="fas fa-eye"></i> Contenido Visto</h1>
+        <p class="subtitle-watched">Tu historial de visualización</p>
+
+        {% if watched_movies|length > 0 or watched_episodes|length > 0 %}
+            <!-- Películas Vistas -->
+            {% if watched_movies|length > 0 %}
+            <section class="content-section">
+                <h2>Películas Vistas ({{ watched_movies|length }})</h2>
+                <div class="content-row">
+                    {% for movie in watched_movies %}
+                    <div class="content-card">
+                        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+                            <img src="{{ url_for('static', filename=movie.poster_path) if movie.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                                 alt="{{ movie.title }}" class="content-poster">
+                            <div class="content-overlay">
+                                <h3>{{ movie.title }}</h3>
+                                <div class="content-info">
+                                    <span class="year">{{ movie.release_year or 'N/A' }}</span>
+                                    {% if movie.duration %}
+                                    <span class="duration">{{ movie.duration }} min</span>
+                                    {% endif %}
+                                </div>
+                                <div class="watched-badge">
+                                    <i class="fas fa-check-circle"></i> Vista
+                                </div>
+                                <div class="content-actions">
+                                    <button class="action-btn" onclick="window.location.href='{{ url_for('movie_detail', movie_id=movie.id) }}'">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button class="action-btn" onclick="event.preventDefault(); window.location.href='{{ url_for('toggle_watched_movie', movie_id=movie.id) }}'">
+                                        <i class="fas fa-eye-slash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Series/Episodios Vistos -->
+            {% if watched_episodes|length > 0 %}
+            <section class="content-section">
+                <h2>Episodios Vistos ({{ watched_episodes|length }})</h2>
+
+                {% set series_dict = {} %}
+                {% for episode in watched_episodes %}
+                    {% set _ = series_dict.update({episode.series.id: episode.series}) if episode.series.id not in series_dict else None %}
+                {% endfor %}
+
+                <div class="content-row">
+                    {% for series_id, series in series_dict.items() %}
+                    <div class="content-card">
+                        <a href="{{ url_for('series_detail', series_id=series.id) }}">
+                            <img src="{{ url_for('static', filename=series.poster_path) if series.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                                 alt="{{ series.title }}" class="content-poster">
+                            <div class="content-overlay">
+                                <h3>{{ series.title }}</h3>
+                                <div class="content-info">
+                                    <span class="year">{{ series.release_year or 'N/A' }}</span>
+                                    {% set watched_count = watched_episodes|selectattr('series_id', 'equalto', series.id)|list|length %}
+                                    <span class="episodes">{{ watched_count }} ep. vistos</span>
+                                </div>
+                                <div class="watched-badge">
+                                    <i class="fas fa-check-circle"></i> En progreso
+                                </div>
+                                <div class="content-actions">
+                                    <button class="action-btn" onclick="window.location.href='{{ url_for('series_detail', series_id=series.id) }}'">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        {% else %}
+            <div class="empty-list">
+                <i class="fas fa-eye"></i>
+                <h2>Aún no has visto nada</h2>
+                <p>Empieza a ver películas y series para crear tu historial</p>
+                <a href="{{ url_for('home') }}" class="btn btn-primary">Explorar catálogo</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

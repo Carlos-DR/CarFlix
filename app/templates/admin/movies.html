@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar Películas - Carflix Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <a href="{{ url_for('admin_dashboard') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver al panel
+                </a>
+                <h1><i class="fas fa-film"></i> Gestión de Películas</h1>
+            </div>
+            <a href="{{ url_for('admin_add_movie') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Añadir Película
+            </a>
+        </div>
+
+        <div class="content-grid-admin">
+            {% for movie in movies %}
+            <div class="admin-content-card">
+                <div class="admin-card-poster">
+                    <img src="{{ url_for('static', filename=movie.poster_path) if movie.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                         alt="{{ movie.title }}">
+                </div>
+                <div class="admin-card-info">
+                    <h3>{{ movie.title }}</h3>
+                    <div class="admin-card-meta">
+                        {% if movie.release_year %}
+                        <span><i class="fas fa-calendar"></i> {{ movie.release_year }}</span>
+                        {% endif %}
+                        {% if movie.duration %}
+                        <span><i class="fas fa-clock"></i> {{ movie.duration }} min</span>
+                        {% endif %}
+                    </div>
+                    {% if movie.categories %}
+                    <div class="admin-card-categories">
+                        {% for category in movie.categories %}
+                        <span class="category-badge">{{ category.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="admin-card-actions">
+                        <a href="{{ url_for('admin_edit_movie', movie_id=movie.id) }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{{ url_for('admin_delete_movie', movie_id=movie.id) }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('¿Eliminar {{ movie.title }}? Esta acción no se puede deshacer.')">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if movies|length == 0 %}
+        <div class="empty-state">
+            <i class="fas fa-film"></i>
+            <h3>No hay películas</h3>
+            <p>Añade tu primera película al catálogo</p>
+            <a href="{{ url_for('admin_add_movie') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Añadir Película
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

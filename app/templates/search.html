@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Buscar - Carflix{% endblock %}
+
+{% block content %}
+<div class="search-page">
+    <div class="search-container">
+        <h1>Buscar contenido</h1>
+
+        <form action="{{ url_for('search') }}" method="get" class="search-form-large">
+            <input type="text" name="q" value="{{ query }}" placeholder="Buscar películas, series, géneros..." class="search-input-large" autofocus>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </form>
+
+        {% if query %}
+        <div class="search-results">
+            <h2>Resultados para "{{ query }}"</h2>
+
+            {% if results.movies|length > 0 or results.series|length > 0 %}
+                <!-- Películas -->
+                {% if results.movies|length > 0 %}
+                <section class="content-section">
+                    <h3>Películas ({{ results.movies|length }})</h3>
+                    <div class="content-row">
+                        {% for movie in results.movies %}
+                        <div class="content-card">
+                            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+                                <img src="{{ url_for('static', filename=movie.poster_path) if movie.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                                     alt="{{ movie.title }}" class="content-poster">
+                                <div class="content-overlay">
+                                    <h3>{{ movie.title }}</h3>
+                                    <div class="content-info">
+                                        <span class="year">{{ movie.release_year or 'N/A' }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- Series -->
+                {% if results.series|length > 0 %}
+                <section class="content-section">
+                    <h3>Series ({{ results.series|length }})</h3>
+                    <div class="content-row">
+                        {% for show in results.series %}
+                        <div class="content-card">
+                            <a href="{{ url_for('series_detail', series_id=show.id) }}">
+                                <img src="{{ url_for('static', filename=show.poster_path) if show.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                                     alt="{{ show.title }}" class="content-poster">
+                                <div class="content-overlay">
+                                    <h3>{{ show.title }}</h3>
+                                    <div class="content-info">
+                                        <span class="year">{{ show.release_year or 'N/A' }}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+            {% else %}
+                <div class="no-results">
+                    <i class="fas fa-search"></i>
+                    <p>No se encontraron resultados para "{{ query }}"</p>
+                    <p class="no-results-hint">Intenta con otros términos o explora el catálogo completo</p>
+                    <a href="{{ url_for('home') }}" class="btn btn-primary">Ver catálogo</a>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

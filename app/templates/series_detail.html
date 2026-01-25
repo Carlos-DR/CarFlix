@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}{{ series.title }} - Carflix{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <!-- Hero Section -->
+    <section class="detail-hero" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.9) 100%),
+                                        url('{{ url_for('static', filename=series.background_path) if series.background_path else url_for('static', filename='images/default-bg.jpg') }}');">
+        <div class="detail-hero-content">
+            <a href="{{ url_for('home') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </section>
+
+    <!-- Información de la Serie -->
+    <section class="detail-content">
+        <div class="detail-container">
+            <div class="detail-main">
+                <div class="detail-poster">
+                    <img src="{{ url_for('static', filename=series.poster_path) if series.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                         alt="{{ series.title }}">
+                </div>
+
+                <div class="detail-info">
+                    <h1 class="detail-title">{{ series.title }}</h1>
+
+                    <div class="detail-meta">
+                        {% if series.release_year %}
+                        <span class="meta-item"><i class="fas fa-calendar"></i> {{ series.release_year }}</span>
+                        {% endif %}
+                        <span class="meta-item"><i class="fas fa-tv"></i> {{ seasons|length }} temporadas</span>
+                        <span class="meta-item"><i class="fas fa-film"></i> {{ series.episodes.count() }} episodios</span>
+                        {% if series.categories %}
+                        <span class="meta-item">
+                            <i class="fas fa-tag"></i>
+                            {% for category in series.categories %}
+                                {{ category.name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="detail-actions">
+                        <a href="{{ url_for('toggle_favorite_series', series_id=series.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-{% if is_favorite %}check{% else %}plus{% endif %}"></i>
+                            {% if is_favorite %}En mi lista{% else %}Mi lista{% endif %}
+                        </a>
+                    </div>
+
+                    {% if series.description %}
+                    <div class="detail-description">
+                        <h3>Sinopsis</h3>
+                        <p>{{ series.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Episodios por Temporada -->
+            <div class="episodes-section">
+                <h2>Episodios</h2>
+
+                {% if seasons|length > 1 %}
+                <div class="season-selector">
+                    <label for="seasonSelect">Temporada:</label>
+                    <select id="seasonSelect" onchange="showSeason(this.value)">
+                        {% for season_num in seasons|sort %}
+                        <option value="{{ season_num }}">Temporada {{ season_num }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                {% for season_num, episodes in seasons.items() %}
+                <div class="season-episodes" id="season-{{ season_num }}" {% if season_num != seasons.keys()|sort|first %}style="display:none;"{% endif %}>
+                    <h3>Temporada {{ season_num }}</h3>
+
+                    <div class="episodes-list">
+                        {% for episode in episodes %}
+                        <div class="episode-card">
+                            <div class="episode-number">{{ episode.episode_number }}</div>
+                            <div class="episode-thumbnail">
+                                {% if episode.thumbnail_path %}
+                                <img src="{{ url_for('static', filename=episode.thumbnail_path) }}" alt="{{ episode.title }}">
+                                {% else %}
+                                <div class="thumbnail-placeholder">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                                {% endif %}
+                                <button class="play-episode-btn" onclick="playEpisode('{{ url_for('serve_video', filename=episode.video_path) }}', '{{ episode.title }}', {{ episode.id }})">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            </div>
+                            <div class="episode-info">
+                                <h4>{{ episode.title }}</h4>
+                                {% if episode.duration %}
+                                <span class="episode-duration">{{ episode.duration }} min</span>
+                                {% endif %}
+                                {% if episode.description %}
+                                <p class="episode-description">{{ episode.description }}</p>
+                                {% endif %}
+                                <div class="episode-actions">
+                                    <a href="{{ url_for('toggle_watched_episode', episode_id=episode.id) }}" class="episode-action-btn">
+                                        {% if episode in current_user.watched_episodes %}
+                                        <i class="fas fa-check-circle"></i> Visto
+                                        {% else %}
+                                        <i class="far fa-circle"></i> Marcar como visto
+                                        {% endif %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if seasons|length == 0 %}
+                <p class="no-content">Esta serie aún no tiene episodios disponibles.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Reproductor de Video -->
+    <div id="videoPlayer" class="video-player-modal" style="display: none;">
+        <div class="video-player-container">
+            <button onclick="closeVideo()" class="close-player">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 id="videoTitle" class="video-title"></h3>
+            <video id="videoElement" controls autoplay>
+                Tu navegador no soporta la reproducción de video.
+            </video>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentEpisodeId = null;
+
+function showSeason(seasonNum) {
+    // Ocultar todas las temporadas
+    document.querySelectorAll('.season-episodes').forEach(function(season) {
+        season.style.display = 'none';
+    });
+
+    // Mostrar la temporada seleccionada
+    document.getElementById('season-' + seasonNum).style.display = 'block';
+}
+
+function playEpisode(videoUrl, title, episodeId) {
+    currentEpisodeId = episodeId;
+    document.getElementById('videoTitle').textContent = title;
+
+    const video = document.getElementById('videoElement');
+    video.src = videoUrl;
+
+    document.getElementById('videoPlayer').style.display = 'flex';
+    video.play();
+}
+
+function closeVideo() {
+    const video = document.getElementById('videoElement');
+    video.pause();
+    video.currentTime = 0;
+    video.src = '';
+    document.getElementById('videoPlayer').style.display = 'none';
+}
+
+// Cerrar con tecla ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeVideo();
+    }
+});
+</script>
+{% endblock %}

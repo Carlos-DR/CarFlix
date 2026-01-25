@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar Series - Carflix Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <a href="{{ url_for('admin_dashboard') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver al panel
+                </a>
+                <h1><i class="fas fa-tv"></i> Gestión de Series</h1>
+            </div>
+            <a href="{{ url_for('admin_add_series') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Añadir Serie
+            </a>
+        </div>
+
+        <div class="content-grid-admin">
+            {% for show in series %}
+            <div class="admin-content-card">
+                <div class="admin-card-poster">
+                    <img src="{{ url_for('static', filename=show.poster_path) if show.poster_path else 'https://via.placeholder.com/300x450?text=Sin+Poster' }}"
+                         alt="{{ show.title }}">
+                </div>
+                <div class="admin-card-info">
+                    <h3>{{ show.title }}</h3>
+                    <div class="admin-card-meta">
+                        {% if show.release_year %}
+                        <span><i class="fas fa-calendar"></i> {{ show.release_year }}</span>
+                        {% endif %}
+                        <span><i class="fas fa-list"></i> {{ show.episodes.count() }} episodios</span>
+                    </div>
+                    {% if show.categories %}
+                    <div class="admin-card-categories">
+                        {% for category in show.categories %}
+                        <span class="category-badge">{{ category.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="admin-card-actions">
+                        <a href="{{ url_for('admin_episodes', series_id=show.id) }}" class="btn btn-info btn-sm">
+                            <i class="fas fa-list"></i> Episodios
+                        </a>
+                        <a href="{{ url_for('admin_edit_series', series_id=show.id) }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{{ url_for('admin_delete_series', series_id=show.id) }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('¿Eliminar {{ show.title }}? Se eliminarán todos los episodios.')">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if series|length == 0 %}
+        <div class="empty-state">
+            <i class="fas fa-tv"></i>
+            <h3>No hay series</h3>
+            <p>Añade tu primera serie al catálogo</p>
+            <a href="{{ url_for('admin_add_series') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Añadir Serie
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

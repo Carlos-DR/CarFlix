@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar Usuarios - Carflix Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <a href="{{ url_for('admin_dashboard') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver al panel
+                </a>
+                <h1><i class="fas fa-users"></i> Gestión de Usuarios</h1>
+            </div>
+            <a href="{{ url_for('admin_add_user') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Añadir Usuario
+            </a>
+        </div>
+
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Fecha de registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>
+                            <div class="user-cell">
+                                <i class="fas fa-user-circle"></i>
+                                <strong>{{ user.username }}</strong>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.is_admin %}
+                                <span class="badge badge-admin">
+                                    <i class="fas fa-crown"></i> Administrador
+                                </span>
+                            {% else %}
+                                <span class="badge badge-user">
+                                    <i class="fas fa-user"></i> Usuario
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                {% if user.id != current_user.id %}
+                                <a href="{{ url_for('admin_edit_user', user_id=user.id) }}"
+                                   class="btn-icon btn-secondary"
+                                   title="Editar usuario">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('admin_toggle_admin', user_id=user.id) }}"
+                                   class="btn-icon btn-warning"
+                                   title="{% if user.is_admin %}Quitar admin{% else %}Hacer admin{% endif %}"
+                                   onclick="return confirm('¿Cambiar permisos de {{ user.username }}?')">
+                                    <i class="fas fa-user-shield"></i>
+                                </a>
+                                <a href="{{ url_for('admin_delete_user', user_id=user.id) }}"
+                                   class="btn-icon btn-danger"
+                                   title="Eliminar usuario"
+                                   onclick="return confirm('¿Eliminar a {{ user.username }}? Esta acción no se puede deshacer.')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                                {% else %}
+                                <span class="text-muted">Tú</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if users|length == 0 %}
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <p>No hay usuarios registrados</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

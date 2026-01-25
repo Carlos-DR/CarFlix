@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Estadísticas - Carflix{% endblock %}
+
+{% block content %}
+<div class="stats-page">
+    <div class="stats-container">
+        <h1><i class="fas fa-chart-bar"></i> Mis Estadísticas</h1>
+        <p class="stats-subtitle">Análisis de tu actividad en Carflix</p>
+
+        <!-- Resumen General -->
+        <div class="stats-summary">
+            <div class="summary-card">
+                <div class="summary-icon movies">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="summary-info">
+                    <h3>{{ stats.movies_watched }}</h3>
+                    <p>Películas vistas</p>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon series">
+                    <i class="fas fa-tv"></i>
+                </div>
+                <div class="summary-info">
+                    <h3>{{ stats.episodes_watched }}</h3>
+                    <p>Episodios vistos</p>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon time">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="summary-info">
+                    <h3>{{ stats.total_hours }}h {{ stats.total_minutes }}m</h3>
+                    <p>Tiempo total</p>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon favorites">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="summary-info">
+                    <h3>{{ stats.favorites }}</h3>
+                    <p>En mi lista</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfica de Tiempo -->
+        <div class="chart-section">
+            <h2><i class="fas fa-clock"></i> Distribución del Tiempo</h2>
+            <div class="chart-container">
+                <canvas id="timeChart"></canvas>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #10b981;"></span>
+                    <span>Películas: {{ stats.movies_time_hours }}h {{ stats.movies_time_minutes }}m</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #8b5cf6;"></span>
+                    <span>Series: {{ stats.series_time_hours }}h {{ stats.series_time_minutes }}m</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfica de Contenido Visto -->
+        <div class="chart-section">
+            <h2><i class="fas fa-chart-pie"></i> Contenido Visto</h2>
+            <div class="chart-container">
+                <canvas id="contentChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Categorías -->
+        <div class="chart-section">
+            <h2><i class="fas fa-star"></i> Categorías Más Vistas</h2>
+            {% if stats.top_categories %}
+            <div class="categories-bars">
+                {% for category, count in stats.top_categories %}
+                <div class="category-bar-item">
+                    <div class="category-bar-info">
+                        <span class="category-name">{{ category }}</span>
+                        <span class="category-count">{{ count }} contenidos</span>
+                    </div>
+                    <div class="category-bar-container">
+                        <div class="category-bar-fill" style="width: {{ (count / stats.top_categories[0][1] * 100) }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-data">No hay datos de categorías aún</p>
+            {% endif %}
+        </div>
+
+        <!-- Series en Progreso -->
+        <div class="chart-section">
+            <h2><i class="fas fa-list-check"></i> Series en Progreso</h2>
+            {% if stats.series_progress %}
+            <div class="progress-list">
+                {% for series_data in stats.series_progress %}
+                <div class="progress-item">
+                    <div class="progress-poster">
+                        <img src="{{ url_for('static', filename=series_data.poster) if series_data.poster else 'https://via.placeholder.com/100x150?text=Sin+Poster' }}"
+                             alt="{{ series_data.title }}">
+                    </div>
+                    <div class="progress-info">
+                        <h4>{{ series_data.title }}</h4>
+                        <p>{{ series_data.watched }} de {{ series_data.total }} episodios vistos</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: {{ series_data.percentage }}%;"></div>
+                        </div>
+                        <span class="progress-percentage">{{ series_data.percentage }}% completado</span>
+                    </div>
+                    <a href="{{ url_for('series_detail', series_id=series_data.id) }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-play"></i> Continuar
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-data">No tienes series en progreso</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+// Gráfica de Tiempo (Dona)
+const timeCtx = document.getElementById('timeChart');
+if (timeCtx) {
+    new Chart(timeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Películas', 'Series'],
+            datasets: [{
+                data: [{{ stats.movies_time }}, {{ stats.series_time }}],
+                backgroundColor: ['#10b981', '#8b5cf6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const minutes = context.parsed;
+                            const hours = Math.floor(minutes / 60);
+                            const mins = minutes % 60;
+                            return context.label + ': ' + hours + 'h ' + mins + 'm';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Gráfica de Contenido Visto (Barras)
+const contentCtx = document.getElementById('contentChart');
+if (contentCtx) {
+    new Chart(contentCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Películas', 'Episodios'],
+            datasets: [{
+                label: 'Contenido visto',
+                data: [{{ stats.movies_watched }}, {{ stats.episodes_watched }}],
+                backgroundColor: ['#10b981', '#8b5cf6'],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        color: '#b3b3b3'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#b3b3b3'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}
